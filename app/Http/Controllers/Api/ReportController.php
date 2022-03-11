@@ -3,65 +3,50 @@
 namespace App\Http\Controllers\Api;
 
 use App\Models\Item;
-use App\Models\Category;
-use App\Models\Location;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
-use Illuminate\Support\Facades\DB;
 
 class ReportController extends Controller
 {
 
     private function getReport($price = null)
     {
-        $locations = Location::with('items')->get();
+        $query = Item::join('locations', 'locations.id', 'items.location_id')
+            ->join('categories', 'categories.id', 'items.category_id')
+            ->leftJoin('categories as c2', 'categories.parent_id', 'c2.id')
+            ->selectRaw('locations.name as location, categories.name as category, c2.name as parent_category, count(items.id) as item_count')
+            ->whereRaw('items.deleted_at is null and locations.deleted_at is null and categories.deleted_at is null and c2.deleted_at is null')
+            ->groupBy('locations.name', 'categories.name', 'c2.name', 'items.category_id');
 
-        $report = [];
-
-        foreach ($locations as $location) {
-
-            $items = $location->items;
-
-            if ($price != null) {
-                $items = $location->items->where('price', '=', $price);
-            }
-
-            foreach ($items as $item) {
-
-
-                $category = Category::find($item->category_id);
-                $parent_category = Category::find($category->parent_id);
-
-                $count_item = Item::where([
-                    ['category_id', $item->category_id],
-                    ['location_id', $item->location_id],
-                ])->count();
-
-                $report[] = [
-                    'location' => $location->name,
-                    'category' => $category->name,
-                    'parent_category' => $parent_category->name ?? '',
-                    'item' => $item->name,
-                    'price' => $item->price,
-                    'count_item' => $count_item,
-                ];
-            }
+        if (!empty($price)) {
+            $query = $query->where('items.price', '>=', $price);
         }
 
-        return $report;
+        return $query->get();
     }
 
     public function index()
     {
-        $report = $this->getReport();
+        try {
+            $report = $this->getReport();
 
-        return response()->json($report, 200);
+            return response()->json($report, 200);
+
+        } catch (\Exception $e) {
+            return response()->json(['error' => $e->getMessage()], 500);
+        }
     }
 
     public function filter(Request $request)
     {
-        $report = $this->getReport($request->input('price'));
+        try {
 
-        return response()->json($report, 200);
+            $report = $this->getReport($request->input('price'));
+
+            return response()->json($report, 200);
+
+        } catch (\Exception $e) {
+            return response()->json(['error' => $e->getMessage()], 500);
+        }
     }
 }

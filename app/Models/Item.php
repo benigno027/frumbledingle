@@ -21,9 +21,6 @@ class Item extends Model
         'price',
         'location_id',
         'category_id',
-        'created_by',
-        'updated_by',
-        'deleted_by'
     ];
 
     public function location()

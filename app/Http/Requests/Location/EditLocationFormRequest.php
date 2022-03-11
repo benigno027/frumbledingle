@@ -5,7 +5,7 @@ namespace App\Http\Requests\Location;
 use Illuminate\Foundation\Http\FormRequest;
 use App\Http\Requests\Request;
 
-class AddLocationFormRequest extends FormRequest
+class EditLocationFormRequest extends FormRequest
 {
  
     /**

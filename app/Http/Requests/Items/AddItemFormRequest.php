@@ -36,6 +36,21 @@ class AddItemFormRequest extends FormRequest
         return $rules;
     }
 
+    public function messages()
+    {
+        return [
+            'name.required' => 'Name is required',
+            'name.string' => 'Name must be a string',
+            'name.max' => 'Name must be less than 200 characters',
+            'category_id.required' => 'Category ID is required',
+            'category_id.integer' => 'Category ID must be an integer',
+            'location_id.required' => 'Location ID is required',
+            'location_id.integer' => 'Location ID must be an integer',
+            'price.required' => 'Price is required',
+            'price.numeric' => 'Price must be a number',
+        ];
+    }
+
     /**
      * Get the request's data from the request.
      *

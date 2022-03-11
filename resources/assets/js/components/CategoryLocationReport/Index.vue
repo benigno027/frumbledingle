@@ -21,15 +21,13 @@
                 <th>Parent Category</th>
                 <th>Category</th>
                 <th>Count</th>
-                <th>Price</th>
             </thead>
             <tbody>
                 <tr v-for="row in reports" :key="row.id">
                     <td>{{ row.location }}</td>
                     <td>{{ row.parent_category }}</td>
                     <td>{{ row.category }}</td>
-                    <td>{{ row.count_item }}</td>
-                    <td>{{ row.price }}</td>
+                    <td>{{ row.item_count }}</td>
                 </tr>
             </tbody>
         </table>
@@ -43,6 +41,7 @@ export default {
     data() {
         return {
             reports: [],
+            search_price: '',
         };
     },
     mounted() {

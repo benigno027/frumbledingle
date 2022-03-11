@@ -20,7 +20,10 @@
                     <td>{{ row.price }}</td>
                     <td>{{ row.category.name }}</td>
                     <td>{{ row.location.name }}</td>
-                    <td align="center"><button class="btn btn-danger btn-sm" @click.prevent="deleteItem(row.id)"><i class="fa fa-times" /> Delete</button></td>
+                    <td align="center">
+                        <button class="btn btn-sm btn-warning" @click="showModalEdit(row)"><i class="fa fa-edit"></i> Edit</button>
+                        <button class="btn btn-danger btn-sm" @click.prevent="deleteItem(row.id)"><i class="fa fa-times" /> Delete</button>
+                    </td>
                 </tr>
             </tbody>
         </table>
@@ -29,7 +32,7 @@
             <div class="modal-dialog" role="document">
                 <div class="modal-content">
                     <div class="modal-header">
-                        <h5 class="modal-title">New Item</h5>
+                        <h5 class="modal-title">{{ modal.title }}</h5>
                         <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                         <span aria-hidden="true">&times;</span>
                         </button>
@@ -37,27 +40,28 @@
                     <div class="modal-body">
                         <div class="form-group">
                             <label>Item Name</label>
-                            <input v-model="newItemName" type="text" class="form-control" placeholder="" />
+                            <input v-model="item.name" type="text" class="form-control" placeholder="" />
                         </div>
                         <div class="form-group">
                             <label>Price</label>
-                            <input v-model="newItemPrice" type="number" class="form-control" placeholder="" />
+                            <input v-model="item.price" type="number" class="form-control" placeholder="" />
                         </div>
                         <div class="form-group">
                             <label>Select Location</label>
-                            <select v-model="newItemlocation" class="form-control" >
+                            <select v-model="item.location_id" class="form-control" >
                                 <option v-for="row in locations" :key="row.id" :value="row.id">{{ row.name }}</option>
                             </select>
                         </div>
                         <div class="form-group">
                             <label>Select Category</label>
-                            <select v-model="newItemCategory" class="form-control">
+                            <select v-model="item.category_id" class="form-control">
                                 <option v-for="row in categories" :key="row.id" :value="row.id">{{ row.name }}</option>
                             </select>
                         </div>
                     </div>
                     <div class="modal-footer">
-                        <button type="button" class="btn btn-primary" @click.prevent="createItem()">Create</button>
+                        <button v-if="item.id == null" type="button" class="btn btn-primary" @click.prevent="createItem()">Create</button>
+                        <button v-else type="button" class="btn btn-primary" @click.prevent="updateItem()">Update</button>
                         <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
                     </div>
                 </div>
@@ -68,36 +72,68 @@
 
 <script>
 import axios from 'axios';
+import ItemService from '../../services/item.service.js';
+import CategoryService from '../../services/category.service.js';
+import LocationService from '../../services/location.service.js';
 
 export default {
+    name: 'ItemsIndex',
     data() {
         return {
             items: [],
             locations: [],
             categories: [],
-            newItemName: '',
-            newItemPrice: '', 
-            newItemlocation: '', 
-            newItemCategory: '',
+            item: {
+                id: null,
+                name: '',
+                price: '',
+                location_id: '',
+                category_id: ''
+            },
+            modal:{
+                title: '',
+                textBtnModal: ''
+            }
         };
     },
     mounted() {
         this.getitems();
     },
     methods: {
-        getitems() {
-            return axios.get('/api/items')
-                .then(response => {
-                    this.items = response.data;
-                }).catch(console.error);
+        async getitems() {
+            this.items = await ItemService.index();
         },
-        createItem() {
-            return axios.post('/api/items', { name: this.newItemName, price: this.newItemPrice, location_id: this.newItemlocation, category_id: this.newItemCategory })
-                .then(response => {
-                    this.getitems();
-                    $('#modalItems').modal('hide');
-                })
-                .catch(console.error);
+        async createItem() {
+            let result = await ItemService.store(this.item);
+            if(result.status == 201) {
+                this.getitems();
+                this.clearInputs();
+                $('#modalItems').modal('hide');
+            }else{
+                alert('Error creating item');
+            }
+        },
+        showModalEdit(item) {
+            this.getcategories();
+            this.getLocations();
+            this.item = item;
+            this.modal.title = 'Edit Item';
+            $('#modalItems').modal('show');
+        },
+        async updateItem() {
+            let result = await ItemService.updated(this.item.id, {
+                name: this.item.name,
+                price: this.item.price,
+                location_id: this.item.location_id,
+                category_id: this.item.category_id
+            });
+            if(result.status == 200) {
+                this.getitems();
+                this.clearInputs();
+                $('#modalItems').modal('hide');
+            }else{
+                alert('Error updating item');
+            }
         },
         deleteItem(id) {
             return axios.post('/api/items/' + id, {_method: 'DELETE'})
@@ -105,24 +141,16 @@ export default {
                 .catch(console.error);
         },
         clearInputs() {
-            this.newItemName = '';
-            this.newItemPrice = '';
-            this.newItemlocation = '';
-            this.newItemCategory = '';
+            this.item = { id: null, name: '', price: '', location_id: '', category_id: '' };
         },
-        getcategories() {
-            return axios.get('/api/categories')
-                .then(response => {
-                    this.categories = response.data;
-                }).catch(console.error);
+        async getcategories() {
+            this.categories = await CategoryService.index();
         },
-        getLocations() {
-            return axios.get('/api/locations')
-                .then(response => {
-                    this.locations = response.data;
-                }).catch(console.error);
+        async getLocations() {
+            this.locations = await LocationService.index();
         },
         showModal() {
+            this.modal.title = 'Create New Item';
             this.clearInputs();
             this.getcategories();
             this.getLocations();

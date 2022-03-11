@@ -16,10 +16,7 @@ class Location extends Model
 
     protected $fillable =
     [
-        'name',
-        'created_by',
-        'updated_by',
-        'deleted_by'
+        'name'
     ];
     
     public function items()

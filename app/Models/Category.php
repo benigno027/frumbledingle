@@ -18,9 +18,6 @@ class Category extends Model
     [
         'name',
         'parent_id',
-        'created_by',
-        'updated_by',
-        'deleted_by'
     ];
 
     public function items()

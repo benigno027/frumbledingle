@@ -9,10 +9,11 @@ require('./bootstrap');
 
 window.Vue = require('vue');
 
-Vue.component('locations-table', require('./components/LocationsTable.vue'));
-Vue.component('items-table', require('./components/ItemsTable.vue'));
-Vue.component('categories-table', require('./components/CategoriesTable.vue'));
-Vue.component('reports-table', require('./components/ReportsTable.vue'));
+Vue.component('locations-index', require('./components/Locations/Index.vue'));
+Vue.component('items-index', require('./components/Items/Index.vue'));
+Vue.component('categories-index', require('./components/Categories/Index.vue'));
+Vue.component('reports-index', require('./components/CategoryLocationReport/Index.vue'));
+
 
 
 new Vue({el: '#app-container'});

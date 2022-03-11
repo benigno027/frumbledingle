@@ -5,5 +5,5 @@
 @endsection
 
 @section('content')
-<items-table></items-table>
+<items-index></items-index>
 @endsection

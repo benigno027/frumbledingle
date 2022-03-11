@@ -5,5 +5,5 @@
 @endsection
 
 @section('content')
-<locations-table></locations-table>
+<locations-index></locations-index>
 @endsection

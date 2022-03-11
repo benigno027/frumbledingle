@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api;
 use App\Models\Category;
 use Illuminate\Routing\Controller;
 use App\Http\Requests\Category\AddCategoryFormRequest;
+use App\Http\Requests\Category\EditCategoryFormRequest;
 
 class CategoryController extends Controller
 {
@@ -21,6 +22,22 @@ class CategoryController extends Controller
             $category = Category::create($data);
 
             return response()->json($category, 201);
+        } catch (\Exception $e) {
+
+            return response()->json(['message' => $e->getMessage()], 500);
+        }
+    }
+
+    public function update($id, EditCategoryFormRequest $data)
+    {
+        try {
+
+            $data = $data->getData();
+            $category = Category::findOrFail($id);
+            $category->update($data);
+
+            return response()->json($category, 200);
+
         } catch (\Exception $e) {
 
             return response()->json(['message' => $e->getMessage()], 500);

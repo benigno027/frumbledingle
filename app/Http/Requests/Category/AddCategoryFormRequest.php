@@ -34,6 +34,16 @@ class AddCategoryFormRequest extends FormRequest
         return $rules;
     }
 
+    public function messages()
+    {
+        return [
+            'name.required' => 'Name is required',
+            'name.string' => 'Name must be a string',
+            'name.max' => 'Name must be less than 200 characters',
+            'parent_id.integer' => 'Parent ID must be an integer',
+        ];
+    }
+
     /**
      * Get the request's data from the request.
      *

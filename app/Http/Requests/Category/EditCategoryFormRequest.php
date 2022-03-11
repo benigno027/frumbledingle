@@ -1,11 +1,11 @@
 <?php
 
-namespace App\Http\Requests\Location;
+namespace App\Http\Requests\Category;
 
 use Illuminate\Foundation\Http\FormRequest;
 use App\Http\Requests\Request;
 
-class AddLocationFormRequest extends FormRequest
+class EditCategoryFormRequest extends FormRequest
 {
  
     /**
@@ -28,6 +28,7 @@ class AddLocationFormRequest extends FormRequest
         $rules =
 		[
             'name' => 'required|string|max:200',
+            'parent_id' => 'nullable|integer',
         ];
 
         return $rules;
@@ -39,6 +40,7 @@ class AddLocationFormRequest extends FormRequest
             'name.required' => 'Name is required',
             'name.string' => 'Name must be a string',
             'name.max' => 'Name must be less than 200 characters',
+            'parent_id.integer' => 'Parent ID must be an integer',
         ];
     }
 
@@ -52,6 +54,7 @@ class AddLocationFormRequest extends FormRequest
     {
         $data = $this->only([
             'name',
+            'parent_id',
         ]);
 
         return $data;

@@ -6,6 +6,7 @@ use App\Models\Location;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
 use App\Http\Requests\Location\AddLocationFormRequest;
+use App\Http\Requests\Location\EditLocationFormRequest;
 
 class LocationController extends Controller
 {
@@ -29,13 +30,28 @@ class LocationController extends Controller
         }
     }
 
+    public function update($id, EditLocationFormRequest $data)
+    {
+        try {
+
+            $data = $data->getData();
+            $location = Location::findOrFail($id);
+            $location->update($data);
+
+            return response()->json($location, 200);
+
+        } catch (\Exception $e) {
+
+            return response()->json(['message' => $e->getMessage()], 500);
+        }
+    }
+
     public function destroy(Location $location)
     {
         try {
 
             $location->delete();
-
-            return response()->json(null, 200);
+            return response()->json('Delete Success', 200);
 
         } catch (\Exception $e) {
             return response()->json(['message' => $e->getMessage()], 500);
